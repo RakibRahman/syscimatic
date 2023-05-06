@@ -11,29 +11,57 @@ export const RedoUndo = () => {
   const [builder, setBuilder] = useState(initialState);
   const [redos, setRedos] = useState([]);
   const [undos, setUndos] = useState([]);
-  const names = ["akatsuki", "sabbir", "galib", "mehedi"];
+  const [status, setStatus] = useState(0);
+  const names = [
+    "akatsuki",
+    "sabbir",
+    "galib",
+    "mehedi",
+    "y2j",
+    "taker",
+    "cena",
+  ];
 
   const undoBuilderVersion = () => {
     const previousState = { ...builder };
-    let count = 0;
-
-    console.log(count++);
-    let temp = [];
-    temp.push([...temp, previousState]);
+    setStatus(status + 1);
 
     setUndos([...undos, previousState]);
   };
 
   const handleUndos = () => {
-    console.log(undos);
+    setStatus(status - 1);
 
     const accessLastItem = undos.length - 1;
-    setRedos([...redos, undos[accessLastItem]]);
+    const unDoArr = undos.slice(0, accessLastItem);
+
+    // console.log({ unDoArr });
+    console.log(undos);
+    setUndos(unDoArr);
+    setRedos([...redos, builder]);
 
     setBuilder(undos[accessLastItem]);
   };
+
+  const handleRedos = () => {
+    if (redos.length === 0) return;
+    setStatus(status - 1);
+
+    const accessLastItem = redos.length - 1;
+    const unDoArr = redos.slice(0, accessLastItem);
+
+    // console.log({ unDoArr });
+    setRedos(unDoArr);
+    setUndos([...undos, builder]);
+
+    setBuilder(redos[accessLastItem]);
+  };
+
+  console.log({ undos });
+  console.log({ redos });
   return (
     <>
+      {status}
       Actions:
       <div className="flex gap-4">
         <button
@@ -48,13 +76,28 @@ export const RedoUndo = () => {
         >
           Update Name
         </button>
-        <button className="bg-green-200">Update Text</button>
+        <button className="bg-green-200">Add Fruit</button>
 
         <button className="bg-red-200">Update Builder</button>
-        <button className="bg-violet-200">Redo</button>
+        <button
+          className="bg-violet-200"
+          onClick={() => {
+            if (redos.length === 0) {
+              alert("No History");
+              return;
+            }
+            handleRedos();
+          }}
+        >
+          Redo
+        </button>
         <button
           className="bg-blue-200"
           onClick={() => {
+            if (undos.length === 0) {
+              alert("No History");
+              return;
+            }
             handleUndos();
           }}
         >
@@ -80,7 +123,17 @@ export const RedoUndo = () => {
         </ul>
 
         <p>Info:</p>
-        <textarea value={builder.text} className="w-full my-5"></textarea>
+        <textarea
+          value={builder.text}
+          className="w-full my-5"
+          onChange={(e) => {
+            setBuilder({
+              ...builder,
+              text: e.target.value,
+            });
+            undoBuilderVersion();
+          }}
+        ></textarea>
       </div>
     </>
   );
